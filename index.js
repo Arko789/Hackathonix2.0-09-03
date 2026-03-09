@@ -12,16 +12,22 @@ const errorHandler = require("./middleware/error.middleware")
 
 const app = express()
 
-app.use(cors())
+// Enhanced CORS configuration
+app.use(cors({
+  origin: process.env.CLIENT_URL || "http://localhost:3000",
+  credentials: true
+}))
+
 app.use(express.json())
 
 connectDB()
 
-app.use("/auth",authRoutes)
+app.use("/auth", authRoutes)
 app.use("/user", userRoutes)
-app.use("/todos",todoRoutes)
+app.use("/todos", todoRoutes)
 
 app.use(errorHandler)
-app.listen(process.env.PORT,()=>{
-    console.log("Server running")
+
+app.listen(process.env.PORT, () => {
+  console.log(`Server running on port ${process.env.PORT}`)
 })
