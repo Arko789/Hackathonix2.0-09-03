@@ -312,7 +312,7 @@ npm run dev
 Server runs at:
 
 ```
-http://localhost:5000
+http://localhost:3000
 ```
 
 ---
