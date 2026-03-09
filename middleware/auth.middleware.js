@@ -12,7 +12,7 @@ const auth = (req,res,next) => {
     try{
         const decoded = jwt.verify(token, process.env.JWT_SECRET)
 
-        req.userid = decoded.id
+        req.userid = decoded.userid
 
         next()
 
