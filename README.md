@@ -1,4 +1,4 @@
-# Hackathonix Todo API
+# Your Tasks
 
 A **smart backend Todo management API** built with **Node.js, Express, MongoDB, and Zod**.
 This project was developed for **Hackathonix 2.0** and focuses on building a **secure, scalable, and intelligent task management system**.
