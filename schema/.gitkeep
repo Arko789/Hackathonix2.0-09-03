@@ -1,8 +1,13 @@
+// .gitkeep - keep this directory in git (file intentionally empty of executable code)
+```// filepath: /home/nirav/Documents/Hackathonix-2.0/Hackathonix2.0-09-03/controllers/todo.controller.js
+// ...existing code...
 const Todo = require("../models/todo.model")
 const sortTodos = require("../utils/sortTodos")
 const predictPriority = require("../utils/priorityPredictor")
 const todoSchema = require("../schema/todo.schema")
 const AppError = require("../utils/AppError")
+const mongoose = require("mongoose")
+// ...existing code...
 
 exports.createTodo = async(req,res,next)=>{
 
@@ -33,7 +38,7 @@ exports.createTodo = async(req,res,next)=>{
 }
 }
 
-
+// ...existing code...
 
 exports.getTodos = async(req,res,next)=>{
 
@@ -43,24 +48,26 @@ exports.getTodos = async(req,res,next)=>{
     })
 
     if(!todos || todos.length === 0){
-        return res.json([])
+        return res.json([]) // return empty array instead of throwing
     }
 
     const sortedTodos = sortTodos(todos)
 
     res.json(sortedTodos);
-
+    
 }catch(err){
     next(err)
 }
 }
+
+// ...existing code...
 
 exports.updateTodo = async(req,res,next)=>{
 
     try{
     const id = req.params.id
 
-     if(!id || !mongoose.Types.ObjectId.isValid(id)){
+    if(!id || !mongoose.Types.ObjectId.isValid(id)){
         throw new AppError("Invalid todo id", 400)
     }
 
@@ -70,12 +77,15 @@ exports.updateTodo = async(req,res,next)=>{
     if (typeof title !== "undefined") updates.title = title
     if (typeof complete !== "undefined") updates.complete = complete
 
-
     const todo = await Todo.findByIdAndUpdate(
         id,
         updates,
         {new:true}
     )
+
+    if(!todo){
+        throw new AppError("Todo not found", 404)
+    }
 
     res.json(todo)
 }catch(err){
@@ -83,6 +93,7 @@ exports.updateTodo = async(req,res,next)=>{
 }
 }
 
+// ...existing code...
 
 exports.deleteTodo = async(req,res,next)=>{
 
