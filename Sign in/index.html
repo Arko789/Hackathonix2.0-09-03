@@ -1,0 +1,150 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0"/>
+  <title>To-Do Prioritiser — Sign Up</title>
+  <link rel="stylesheet" href="style.css"/>
+</head>
+<body>
+
+<div class="page">
+  <!-- LEFT PANEL -->
+  <div class="left-panel">
+    <div class="brand">
+      <div class="brand-icon">✦</div>
+      <span class="brand-name">To-Do Prioritiser</span>
+    </div>
+    <div class="hero-tag">✦ Smart Task Management</div>
+    <h1 class="hero-heading">
+      Stop guessing.<br/>
+      <em>Start prioritising.</em>
+    </h1>
+    <p class="hero-sub">
+      Let AI rank your tasks by deadline and workload — so you always know what to tackle first.
+    </p>
+    <ul class="feature-list">
+      <li><div class="feature-dot">⚡</div>Auto-priority based on deadlines &amp; workload</li>
+      <li><div class="feature-dot">🎯</div>Daily focus list — no more decision fatigue</li>
+      <li><div class="feature-dot">📊</div>Track your productivity over time</li>
+    </ul>
+  </div>
+
+  <!-- RIGHT PANEL -->
+  <div class="right-panel">
+    <div class="form-card">
+      <h2 class="form-title">Create your account</h2>
+      <p class="form-subtitle">Already have one? <a href="../signin/index.html">Sign in →</a></p>
+
+      <div id="alert" class="alert hidden"></div>
+
+      <div class="field">
+        <label for="username">Username</label>
+        <div class="input-wrap">
+          <span class="icon">@</span>
+          <input type="text" id="username" placeholder="janedoe99" autocomplete="username"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="email">Email address</label>
+        <div class="input-wrap">
+          <span class="icon">✉</span>
+          <input type="email" id="email" placeholder="jane@example.com" autocomplete="email"/>
+        </div>
+      </div>
+
+      <div class="field">
+        <label for="password">Password</label>
+        <div class="input-wrap">
+          <span class="icon">🔒</span>
+          <input type="password" id="password" placeholder="Min. 6 characters" autocomplete="new-password" oninput="updateStrength(this.value)"/>
+        </div>
+        <div class="pw-strength">
+          <div class="pw-bar" id="b1"></div>
+          <div class="pw-bar" id="b2"></div>
+          <div class="pw-bar" id="b3"></div>
+          <div class="pw-bar" id="b4"></div>
+        </div>
+      </div>
+
+      <label class="terms">
+        <input type="checkbox" id="terms"/>
+        <span>I agree to the <a href="#">Terms of Service</a> and <a href="#">Privacy Policy</a></span>
+      </label>
+
+      <button class="submit-btn" id="submitBtn" type="button" onclick="handleSignUp()">
+        Create Account →
+      </button>
+
+      <p class="form-footer">🔒 Your data is encrypted and never shared.</p>
+    </div>
+  </div>
+</div>
+
+<script>
+  const API_BASE = 'http://localhost:5000';
+
+  function updateStrength(val) {
+    const bars = ['b1','b2','b3','b4'].map(id => document.getElementById(id));
+    let score = 0;
+    if (val.length >= 6)          score++;
+    if (/[A-Z]/.test(val))        score++;
+    if (/[0-9]/.test(val))        score++;
+    if (/[^a-zA-Z0-9]/.test(val)) score++;
+    bars.forEach((b, i) => {
+      b.className = 'pw-bar';
+      if (i < score) b.classList.add(score <= 2 ? 'active' : 'strong');
+    });
+  }
+
+  function showAlert(msg, type = 'error') {
+    const el = document.getElementById('alert');
+    el.textContent = msg;
+    el.className = `alert ${type}`;
+  }
+
+  async function handleSignUp() {
+    const username = document.getElementById('username').value.trim();
+    const email    = document.getElementById('email').value.trim();
+    const password = document.getElementById('password').value;
+    const terms    = document.getElementById('terms').checked;
+    const btn      = document.getElementById('submitBtn');
+
+    if (!username || !email || !password) {
+      showAlert('Please fill in all fields.'); return;
+    }
+    if (!terms) {
+      showAlert('Please accept the Terms of Service to continue.'); return;
+    }
+
+    btn.disabled = true;
+    btn.textContent = 'Creating account...';
+
+    try {
+      const res = await fetch(`${API_BASE}/auth/register`, {
+        method: 'POST',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ username, email, password })
+      });
+      const data = await res.json();
+
+      if (!res.ok) {
+        const msg = data.error?.[0]?.message || data.message || 'Registration failed.';
+        showAlert(msg);
+        return;
+      }
+
+      showAlert('Account created! Redirecting to sign in...', 'success');
+      setTimeout(() => window.location.href = '../signin/index.html', 1500);
+
+    } catch (err) {
+      showAlert('Cannot connect to server. Make sure the backend is running on port 5000.');
+    } finally {
+      btn.disabled = false;
+      btn.textContent = 'Create Account →';
+    }
+  }
+</script>
+</body>
+</html>
