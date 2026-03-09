@@ -1210,13 +1210,26 @@
     document.getElementById('profile-overlay').classList.remove('open');
   }
 
+  // ─── SORT ─────────────────────────────────────────────────
+  function sortTodos(list) {
+    const weight = { high: 3, medium: 2, low: 1 };
+    return [...list].sort((a, b) => {
+      const diff = weight[b.priority] - weight[a.priority];
+      if (diff !== 0) return diff;
+      if (a.deadline && b.deadline) return new Date(a.deadline) - new Date(b.deadline);
+      if (a.deadline) return -1;
+      if (b.deadline) return 1;
+      return 0;
+    });
+  }
+
   // ─── TODOS ────────────────────────────────────────────────
   async function loadTodos() {
     document.getElementById('todo-list').innerHTML = `<div class="loading-overlay"><div class="spinner"></div></div>`;
     try {
       const res = await fetch(`${API}/todos`, { headers: { token } });
       if (res.status === 401) { handleLogout(); return; }
-      todos = await res.json();
+      todos = sortTodos(await res.json());
       renderTodos();
     } catch (e) {
       document.getElementById('todo-list').innerHTML = `<div class="empty-state"><div class="empty-icon">⚠️</div><h3>Failed to load</h3><p>Check your connection</p></div>`;
@@ -1253,7 +1266,7 @@
       if (!res.ok) throw new Error('Failed to add');
       const newTodo = await res.json();
 
-      todos.unshift(newTodo);
+      todos = sortTodos([...todos, newTodo]);
       titleInput.value = '';
       deadlineInput.value = '';
       renderTodos();
@@ -1339,14 +1352,16 @@
   }
 
   function getFilteredTodos() {
+    let filtered;
     switch (currentFilter) {
-      case 'high': return todos.filter(t => t.priority === 'high');
-      case 'medium': return todos.filter(t => t.priority === 'medium');
-      case 'low': return todos.filter(t => t.priority === 'low');
-      case 'pending': return todos.filter(t => !t.complete);
-      case 'done': return todos.filter(t => t.complete);
-      default: return todos;
+      case 'high':    filtered = todos.filter(t => t.priority === 'high'); break;
+      case 'medium':  filtered = todos.filter(t => t.priority === 'medium'); break;
+      case 'low':     filtered = todos.filter(t => t.priority === 'low'); break;
+      case 'pending': filtered = todos.filter(t => !t.complete); break;
+      case 'done':    filtered = todos.filter(t => t.complete); break;
+      default:        filtered = todos;
     }
+    return sortTodos(filtered);
   }
 
   function renderTodos() {
