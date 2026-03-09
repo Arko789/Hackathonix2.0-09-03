@@ -9,6 +9,11 @@ const todoSchema = new mongoose.Schema({
         type:Boolean,
         default:false
     },
+    priority:{
+        type:String,
+        enum:["low","medium","high"],
+        default:"low"
+    },
     userid:{
         type:mongoose.Schema.Types.ObjectId,
         ref:"User"
