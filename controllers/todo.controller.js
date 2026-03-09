@@ -1,17 +1,20 @@
 const Todo = require("../models/todo.model")
+const predictPriority = require("../utils/priorityPredictor")
 
 exports.createTodo = async(req,res)=>{
 
     const {title} = req.body
 
+    const priority = predictPriority(title)
+
     const todo = await Todo.create({
         title,
+        priority,
         userid:req.userid
     })
 
     res.json(todo)
 }
-
 
 exports.getTodos = async(req,res)=>{
 
